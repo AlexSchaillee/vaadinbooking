@@ -4,10 +4,8 @@ import com.switchfully.vaadin.domain.Accomodation;
 import com.switchfully.vaadin.service.AccomodationService;
 import com.vaadin.annotations.Theme;
 import com.vaadin.data.Container;
-import com.vaadin.data.Property;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.data.util.filter.SimpleStringFilter;
-import com.vaadin.event.FieldEvents;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.spring.annotation.SpringUI;
@@ -16,7 +14,6 @@ import com.vaadin.ui.themes.ValoTheme;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -27,6 +24,7 @@ public class ExerciseUI extends UI {
     private Grid grid = new Grid();
 
     private AccomodationService accomodationService;
+    private BeanItemContainer<Accomodation> container;
 
     @Autowired
     public ExerciseUI(AccomodationService accomodationService) {
@@ -42,8 +40,10 @@ public class ExerciseUI extends UI {
 
         TextField filter = new TextField();
         filter.setInputPrompt("Filter by name...");
-//        filter.addTextChangeListener(e -> populateGrid(filterByName(accomodations, e.getText())));
-        filter.addTextChangeListener(e -> applyFilter(e.getText(), (Container.Filterable) grid.getContainerDataSource()));
+        filter.addTextChangeListener(e -> {
+            container.removeAllContainerFilters();
+            container.addContainerFilter(new SimpleStringFilter("name", e.getText(), true, false));
+        });
 
         // Also add a button next to the filter TextField to clear the filter.
 
@@ -51,7 +51,7 @@ public class ExerciseUI extends UI {
         clearFilterTextBtn.setDescription("Clear the current filter");
         clearFilterTextBtn.addClickListener(e -> {
             filter.clear();
-            populateGrid(accomodations);
+            container.removeAllContainerFilters();
         });
 
         CssLayout filtering = new CssLayout();
@@ -63,20 +63,8 @@ public class ExerciseUI extends UI {
         setContent(mainLayout);
     }
 
-    private List<Accomodation> filterByName(List<Accomodation> accomodations, String filter) {
-        return accomodations.stream()
-            .filter(accomodation -> accomodation.getName().toLowerCase().contains(filter.toLowerCase()))
-            .collect(toList());
-    }
-
-    private void applyFilter(String filterText, Container.Filterable filterable) {
-        filterable.removeAllContainerFilters();
-        filterable.addContainerFilter(new SimpleStringFilter("name", filterText, true, false));
-    }
-
     private void populateGrid(List<Accomodation> accomodations) {
-        BeanItemContainer<Accomodation> container =
-                new BeanItemContainer<>(Accomodation.class, accomodations);
+        container = new BeanItemContainer<>(Accomodation.class, accomodations);
 
         container.addNestedContainerProperty("city.name");
 
