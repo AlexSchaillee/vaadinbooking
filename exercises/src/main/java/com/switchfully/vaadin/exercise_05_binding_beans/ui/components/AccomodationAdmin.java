@@ -4,6 +4,7 @@ import com.switchfully.vaadin.domain.Accomodation;
 import com.switchfully.vaadin.service.AccomodationService;
 import com.switchfully.vaadin.service.CityService;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.data.util.filter.SimpleStringFilter;
 import com.vaadin.server.FontAwesome;
 import com.vaadin.ui.*;
 import com.vaadin.ui.themes.ValoTheme;
@@ -21,6 +22,7 @@ public class AccomodationAdmin extends CustomComponent {
     private CityService cityService;
     private TextField filter;
     private Button newAccomodationButton;
+    private BeanItemContainer<Accomodation> container;
 
     public AccomodationAdmin(AccomodationService accomodationService, CityService cityService) {
         this.accomodationService = accomodationService;
@@ -65,13 +67,16 @@ public class AccomodationAdmin extends CustomComponent {
     private CssLayout createFilterComponent(List<Accomodation> accomodations) {
         filter = new TextField();
         filter.setInputPrompt("Filter by name...");
-        filter.addTextChangeListener(e -> populateGrid(filterByName(accomodations, e.getText())));
+        filter.addTextChangeListener(e -> {
+            container.removeAllContainerFilters();
+            container.addContainerFilter(new SimpleStringFilter("name", e.getText(), true, false));
+        });
 
         Button clearFilterTextBtn = new Button(FontAwesome.TIMES);
         clearFilterTextBtn.setDescription("Clear the current filter");
         clearFilterTextBtn.addClickListener(e -> {
             filter.clear();
-            populateGrid(accomodations);
+            container.removeAllContainerFilters();
         });
 
         CssLayout filtering = new CssLayout();
@@ -80,15 +85,8 @@ public class AccomodationAdmin extends CustomComponent {
         return filtering;
     }
 
-    private List<Accomodation> filterByName(List<Accomodation> accomodations, String filter) {
-        return accomodations.stream()
-                .filter(accomodation -> accomodation.getName().toLowerCase().contains(filter.toLowerCase()))
-                .collect(toList());
-    }
-
     private void populateGrid(List<Accomodation> accomodations) {
-        BeanItemContainer<Accomodation> container =
-                new BeanItemContainer<>(Accomodation.class, accomodations);
+        container = new BeanItemContainer<>(Accomodation.class, accomodations);
 
         container.addNestedContainerProperty("city.name");
 

@@ -18,9 +18,8 @@ public class ExerciseUI extends UI {
 
     private Button update;
     private TextField field;
-    private FieldEvents.TextChangeListener autoCommitTextChangeListener = e -> {
-        field.getPropertyDataSource().setValue(e.getText());
-    };
+    private FieldEvents.TextChangeListener autoCommitTextChangeListener =
+            e -> field.getPropertyDataSource().setValue(e.getText());
 
     @Autowired
     public ExerciseUI() {
@@ -35,9 +34,12 @@ public class ExerciseUI extends UI {
 
         // Extra credits: Add a checkbox to hide the button and make the TextField auto-commit.
 
-        Property nameProperty = new ObjectProperty<String>("Hilton");
+        Property nameProperty = new ObjectProperty<String>("");
 
         field = new TextField("Name", nameProperty);
+        field.setInputPrompt("Fill in name");
+//        field.setNullRepresentation("");
+        field.setBuffered(true);
         Label label = new Label(nameProperty);
 
         CheckBox toggleAutoCommit = new CheckBox("Auto commit?");
@@ -61,13 +63,13 @@ public class ExerciseUI extends UI {
 
     private void enableAutoCommit() {
         update.setVisible(false);
-        field.setTextChangeEventMode(EAGER);
+//        field.setTextChangeEventMode(EAGER);
         field.addTextChangeListener(autoCommitTextChangeListener);
     }
 
     private void disableAutoCommit() {
         update.setVisible(true);
-        field.setTextChangeEventMode(LAZY);
+//        field.setTextChangeEventMode(LAZY);
         field.removeTextChangeListener(autoCommitTextChangeListener);
     }
 
