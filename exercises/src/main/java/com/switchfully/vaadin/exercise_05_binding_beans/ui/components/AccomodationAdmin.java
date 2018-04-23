@@ -30,7 +30,7 @@ public class AccomodationAdmin extends CustomComponent {
 
         List<Accomodation> accomodations = accomodationService.getAccomodations();
         populateGrid(accomodations);
-        CssLayout filtering = createFilterComponent(accomodations);
+        CssLayout filtering = createFilterComponent();
 
         // Add a form to the right of the grid to edit details of an accomodation.
 
@@ -64,7 +64,7 @@ public class AccomodationAdmin extends CustomComponent {
         setCompositionRoot(mainLayout);
     }
 
-    private CssLayout createFilterComponent(List<Accomodation> accomodations) {
+    private CssLayout createFilterComponent() {
         filter = new TextField();
         filter.setInputPrompt("Filter by name...");
         filter.addTextChangeListener(e -> {
